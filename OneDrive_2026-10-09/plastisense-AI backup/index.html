@@ -1,0 +1,1543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title data-i18n="page_title">PlastiSense AI | Mumbai Coastal Plastic Pollution Intelligence</title>
+  <meta name="description" content="PlastiSense AI - Detect plastic waste from imagery, predict drain-to-sea leakage hotspots, optimize municipal cleanups, and protect Mumbai's coastline." data-i18n-content="page_description">
+
+  <!-- Leaflet CSS for Map -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+  
+  <!-- Custom Design System CSS -->
+  <link rel="stylesheet" href="css/style.css">
+
+  <!-- Favicon icon -->
+  <link rel="icon" type="image/png" href="assets/images/provided-profile-avatar.png">
+</head>
+<body>
+
+  <!-- Subtle Animated Ocean Parallax Background & Overlay -->
+  <div class="ocean-parallax-bg" id="oceanParallaxBg"></div>
+  <div class="ocean-overlay"></div>
+  <!-- Environmental Transformation Visual Layer: Polluted debris to pristine ocean -->
+  <div class="ocean-transform-overlay"></div>
+
+  <!-- Mobile Slide-out Navigation Drawer (Requirement 8) -->
+  <div class="mobile-drawer-backdrop" id="mobileDrawerBackdrop"></div>
+  <aside class="mobile-nav-drawer" id="mobileNavDrawer" aria-hidden="true" inert>
+    <div class="mobile-drawer-header">
+      <div style="display:flex;align-items:center;gap:0.6rem;">
+        <div id="drawerUserAvatar" style="width:36px;height:36px;border-radius:50%;overflow:hidden;"></div>
+        <div>
+          <div id="drawerUserName" style="font-size:0.9rem;font-weight:700;color:var(--text-main);">Guest</div>
+          <div id="drawerUserRole" style="font-size:0.7rem;color:var(--text-accent);">Not signed in</div>
+        </div>
+      </div>
+      <button class="pill-btn" id="btnCloseMobileDrawer" aria-label="Close navigation" data-i18n-aria-label="nav_close">✕</button>
+    </div>
+    <ul class="mobile-nav-links">
+      <li class="mobile-nav-item active" data-nav="home" data-i18n="nav_landing">Home</li>
+      <li class="mobile-nav-item" data-nav="dashboard" data-i18n="nav_dashboard">Dashboard</li>
+      <li class="mobile-nav-item" data-nav="scanner" data-i18n="nav_scanner">AI Waste Scanner</li>
+      <li class="mobile-nav-item" data-nav="satellite" data-i18n="nav_satellite">Satellite Intelligence</li>
+      <li class="mobile-nav-item" data-nav="map" data-i18n="nav_map">Pollution Map</li>
+      <li class="mobile-nav-item" data-nav="intelligence" data-i18n="nav_intelligence">Forecast & Audit</li>
+      <li class="mobile-nav-item" data-nav="simulator" data-i18n="nav_simulator">Leakage Simulator</li>
+      <li class="mobile-nav-item" data-nav="analytics" data-i18n="nav_analytics">Analytics</li>
+      <li class="mobile-nav-item" data-nav="recycle" data-i18n="nav_recycle">Recycle Smart</li>
+      <li class="mobile-nav-item" data-nav="municipal" data-i18n="nav_municipal">Cleanup Center</li>
+      <li class="mobile-nav-item" data-nav="community" data-i18n="nav_community">Citizen Reports</li>
+      <li class="mobile-nav-item" data-nav="history" data-i18n="nav_history">History</li>
+      <li class="mobile-nav-item" data-nav="settings" data-i18n="nav_settings">Settings</li>
+    </ul>
+    <div style="margin-top:auto;padding-top:1rem;border-top:1px solid var(--bg-card-border);">
+      <select class="lang-select" id="mobileLangSelector" style="width:100%;margin-bottom:0.75rem;" aria-label="Select Language" data-i18n-aria-label="ui_language_select">
+        <option value="en">English (EN)</option>
+        <option value="ta">தமிழ் (Tamil)</option>
+        <option value="te">తెలుగు (Telugu)</option>
+        <option value="kn">ಕನ್ನಡ (Kannada)</option>
+        <option value="ml">മലയാളം (Malayalam)</option>
+        <option value="hi">हिन्दी (Hindi)</option>
+      </select>
+    </div>
+  </aside>
+
+  <!-- Navigation Bar -->
+  <header class="navbar">
+    <div class="nav-left">
+      <!-- Mobile Hamburger Button -->
+      <button class="hamburger-btn" id="btnMobileNavToggle" aria-label="Toggle navigation" data-i18n-aria-label="nav_toggle" aria-controls="mobileNavDrawer" aria-expanded="false">☰</button>
+
+      <div class="brand-container" data-nav="home">
+        <div class="brand-logo-icon">
+          <img src="assets/images/provided-profile-avatar.png" alt="PlastiSense AI logo">
+        </div>
+        <div class="brand-text-block">
+          <h1 class="brand-font">PlastiSense <span>AI</span></h1>
+          <div class="brand-tagline" data-i18n="tagline">Detect. Predict. Act. Restore.</div>
+        </div>
+      </div>
+
+      <!-- Navigation Links -->
+      <nav>
+        <ul class="nav-links">
+          <li class="nav-item active" data-nav="home" data-i18n="nav_landing">Home</li>
+          <li class="nav-item" data-nav="dashboard" data-i18n="nav_dashboard">Dashboard</li>
+          <li class="nav-item" data-nav="scanner" data-i18n="nav_scanner">AI Waste Scanner</li>
+          <li class="nav-item" data-nav="satellite" data-i18n="nav_satellite">Satellite Intelligence</li>
+          <li class="nav-item" data-nav="map" data-i18n="nav_map">Pollution Map</li>
+          <li class="nav-item" data-nav="intelligence" data-i18n="nav_intelligence">Forecast & Audit</li>
+          <li class="nav-item" data-nav="simulator" data-i18n="nav_simulator">Leakage Simulator</li>
+          <li class="nav-item" data-nav="analytics" data-i18n="nav_analytics">Analytics</li>
+          <li class="nav-item" data-nav="recycle" data-i18n="nav_recycle">Recycle Smart</li>
+          <li class="nav-item" data-nav="municipal" data-i18n="nav_municipal">Cleanup Center</li>
+          <li class="nav-item" data-nav="community" data-i18n="nav_community">Citizen Reports</li>
+          <li class="nav-item" data-nav="history" data-i18n="nav_history">History</li>
+          <li class="nav-item" data-nav="settings" data-i18n="nav_settings">Settings</li>
+        </ul>
+      </nav>
+    </div>
+
+    <div class="nav-right">
+      <!-- Global Sound ON/OFF Toggle (Requirement 4) -->
+      <button class="pill-btn btn-sound-toggle" id="btnSoundToggle" title="Toggle UI Click Sounds" data-i18n-title="ui_sound_title">
+        <span class="sound-icon">🔊</span>
+        <span data-i18n="sound_on">Sound ON</span>
+      </button>
+
+      <!-- Light / Dark Mode Toggle (Requirement 5) -->
+      <button class="pill-btn" id="btnThemeToggle" title="Toggle Light/Dark Theme" data-i18n-title="ui_theme_title">
+        <span class="theme-icon">🌙</span>
+        <span data-i18n="theme_dark">Dark Mode</span>
+      </button>
+
+      <!-- Demo Mode Badge -->
+      <div class="demo-pill" id="demoModeBadge" title="Environmental figures shown here are demonstration estimates">
+        <span class="pulse-dot"></span>
+        <span data-i18n="demo_mode_badge">Demo Mode Active (Simulated Mumbai Data)</span>
+      </div>
+
+      <!-- Multi-Language Selector (English, Tamil, Telugu, Kannada, Malayalam) -->
+      <div class="lang-dropdown-wrapper">
+        <select class="lang-select" id="langSelector" aria-label="Select Language" data-i18n-aria-label="ui_language_select">
+          <option value="en">English (EN)</option>
+          <option value="ta">தமிழ் (Tamil)</option>
+          <option value="te">తెలుగు (Telugu)</option>
+          <option value="kn">ಕನ್ನಡ (Kannada)</option>
+          <option value="ml">മലയാളം (Malayalam)</option>
+          <option value="hi">हिन्दी (Hindi)</option>
+        </select>
+        <span class="lang-caret">▼</span>
+      </div>
+
+      <!-- Notifications Bell -->
+      <button class="icon-btn-round" id="btnNotifications" aria-label="System Notifications" title="View Environmental Alerts" data-i18n-aria-label="ui_notifications_title" data-i18n-title="ui_notifications_view">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+          <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+        </svg>
+        <span class="notif-badge-count" id="notifBadgeCount">2</span>
+      </button>
+
+      <!-- User Role Profile Badge -->
+      <div class="user-role-card" id="userRoleCard" title="Profile & Roles" data-i18n-title="ui_profile_roles">
+        <div class="user-avatar-sm" id="currentUserAvatar">A</div>
+        <div class="user-info-text">
+          <div class="user-name" id="currentUserName">Guest</div>
+          <div class="user-role-tag" id="currentUserRole">Not signed in</div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Wrapper -->
+  <main class="main-wrapper">
+
+    <!-- =========================================================================
+         1. LANDING PAGE VIEW (view-home)
+         ========================================================================= -->
+    <section class="view-section active" id="view-home">
+      <!-- Hero Section -->
+      <div class="hero-container">
+        <div class="hero-content-col">
+          <div class="hero-pill">
+            <span>⚡ Next-Gen Municipal AI Platform</span>
+            <span>•</span>
+            <span>Mumbai Coastline Protection</span>
+          </div>
+          <h2 class="hero-title" data-i18n="hero_title">
+            AI-Powered Environmental Intelligence for a Cleaner Mumbai Coast
+          </h2>
+          <p class="hero-sub" data-i18n="hero_sub">
+            Detect plastic pollution from imagery, predict drain-to-sea leakage hotspots, optimize cleanup routes, and protect the Arabian Sea coastline.
+          </p>
+          <div class="hero-cta-group">
+            <button class="btn-primary" data-nav="scanner">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="m10 15 5-3-5-3v6z"/></svg>
+              <span data-i18n="start_detection">Start AI Detection</span>
+            </button>
+            <button class="btn-outline" data-nav="map">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" y1="3" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="21"/></svg>
+              <span data-i18n="explore_map">Explore Pollution Map</span>
+            </button>
+            <button class="btn-outline" data-nav="simulator">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+              <span data-i18n="ui_home_simulator">Leakage Simulator</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="hero-visual-col">
+          <section class="brand-explainer-card" aria-labelledby="brandExplainerTitle">
+            <div class="brand-signal-art" aria-hidden="true">
+              <span class="brand-signal-orbit brand-signal-orbit-outer"></span>
+              <span class="brand-signal-orbit brand-signal-orbit-inner"></span>
+              <span class="brand-signal-core">PS</span>
+              <span class="brand-signal-dot brand-signal-dot-one"></span>
+              <span class="brand-signal-dot brand-signal-dot-two"></span>
+              <span class="brand-signal-scan"></span>
+            </div>
+            <h3 id="brandExplainerTitle" class="brand-explainer-title"><span data-i18n="ui_home_brand_question_start">What does</span> <span>PlastiSense AI</span> <span data-i18n="ui_home_brand_question_end">mean?</span></h3>
+            <div class="brand-name-parts">
+              <div class="brand-name-part">
+                <span class="brand-name-word">PLASTI</span>
+                <p>Plastic pollution in our environment</p>
+              </div>
+              <span class="brand-name-plus" aria-hidden="true">+</span>
+              <div class="brand-name-part">
+                <span class="brand-name-word">SENSE</span>
+                <p>Sensing, understanding, and finding hotspots</p>
+              </div>
+              <span class="brand-name-plus" aria-hidden="true">+</span>
+              <div class="brand-name-part">
+                <span class="brand-name-word">AI</span>
+                <p>Tools that help people detect, predict, and act</p>
+              </div>
+            </div>
+            <p class="brand-explainer-caption">Turning environmental signals into clearer action for a cleaner coast.</p>
+          </section>
+        </div>
+      </div>
+
+      <!-- Problem vs Solution Showcase -->
+      <div class="comparison-grid">
+        <div class="glass-panel problem-card">
+          <span class="badge-flag danger">The Challenge</span>
+          <h3 style="font-size:1.6rem;color:#fff;margin-bottom:0.75rem;">Rising Coastal Plastic Pollution in Mumbai</h3>
+          <p style="color:var(--text-muted);font-size:0.92rem;line-height:1.6;margin-bottom:1rem;">
+            Mumbai generates over 2,200 metric tonnes of plastic waste daily. During heavy monsoon spells, unsegregated single-use plastics from urban stormwater nullahs rush through Mithi River, Mahim Creek, and Irla Nullah straight into the Arabian Sea, devastating marine biodiversity and mangrove ecosystems.
+          </p>
+          <div style="font-size:0.85rem;color:#fca5a5;display:flex;gap:1.5rem;">
+            <div><strong>98%</strong> Drainage Conduit Leakage</div>
+            <div><strong>450+ yrs</strong> Ocean Degradation Span</div>
+          </div>
+        </div>
+
+        <div class="glass-panel solution-card">
+          <span class="badge-flag success">The Solution</span>
+          <h3 style="font-size:1.6rem;color:#fff;margin-bottom:0.75rem;">PlastiSense AI Intelligence Engine</h3>
+          <p style="color:var(--text-muted);font-size:0.92rem;line-height:1.6;margin-bottom:1rem;">
+            An end-to-end environmental platform combining deep learning computer vision, hydrological risk scoring, multispectral satellite remote sensing, and real-time municipal routing to intercept plastic before it enters open ocean waters.
+          </p>
+          <div style="font-size:0.85rem;color:var(--emerald-glow);display:flex;gap:1.5rem;">
+            <div><strong>14</strong> Polymer Classifications</div>
+            <div><strong>5</strong> South Indian Languages</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 5-Step Process Timeline -->
+      <div class="process-section">
+        <div class="section-tag">Continuous Operational Lifecycle</div>
+        <h3 class="section-heading">How PlastiSense AI Works</h3>
+        <p class="section-subheading">From smartphone photos and satellite imagery to municipal cleanup dispatch.</p>
+
+        <div class="timeline-grid">
+          <div class="glass-card timeline-card">
+            <div class="timeline-step-badge">1</div>
+            <h4>Upload Image</h4>
+            <p>Citizens, drones, or satellites capture coastal or drainage debris.</p>
+          </div>
+          <div class="glass-card timeline-card">
+            <div class="timeline-step-badge">2</div>
+            <h4>AI Detects Plastic</h4>
+            <p>Computer vision identifies 14 categories, quantities, and coverage.</p>
+          </div>
+          <div class="glass-card timeline-card">
+            <div class="timeline-step-badge">3</div>
+            <h4>Risk Engine Scores</h4>
+            <p>Hydrodynamic algorithms calculate marine leakage probability (0-100).</p>
+          </div>
+          <div class="glass-card timeline-card">
+            <div class="timeline-step-badge">4</div>
+            <h4>Map Pinpoints Hotspot</h4>
+            <p>Interactive Mumbai cartography ranks priority zones and flow paths.</p>
+          </div>
+          <div class="glass-card timeline-card">
+            <div class="timeline-step-badge">5</div>
+            <h4>Cleanup & Recycling</h4>
+            <p>Municipal squads deployed; polymers dispatched to certified MRFs.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Before vs After Demonstration Showcase -->
+      <div class="glass-panel" style="padding:2.5rem;margin:3rem 0;">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;margin-bottom:1.5rem;">
+          <div>
+            <div class="section-tag">Unique Innovation • Before vs After AI</div>
+            <h3 style="font-size:1.8rem;color:#fff;">Mumbai Beach Cleanup AI Verification</h3>
+            <p style="color:var(--text-muted);font-size:0.9rem;">Inspect real environmental restoration results verified by PlastiSense AI algorithms.</p>
+          </div>
+          <div style="display:flex;gap:1rem;align-items:center;">
+            <span class="pill-btn active" id="reductionMetricBadge">Baseline Pollution (High Influx)</span>
+            <button class="btn-primary" id="btnToggleBeforeAfter" style="font-size:0.85rem;padding:0.6rem 1.25rem;">
+              View After Cleanup (AI Verified)
+            </button>
+          </div>
+        </div>
+        <div style="position:relative;height:420px;border-radius:var(--radius-md);overflow:hidden;border:1px solid var(--bg-card-border);">
+          <img id="cleanupBeforeImg" src="assets/images/plastic-beach-before.jpg" alt="Before Cleanup Plastic Litter" style="width:100%;height:100%;object-fit:cover;">
+          <img id="cleanupAfterImg" src="assets/images/plastic-beach-after.jpg" alt="After Cleanup Restored Beach" style="width:100%;height:100%;object-fit:cover;display:none;">
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================================
+         2. MAIN DASHBOARD VIEW (view-dashboard)
+         ========================================================================= -->
+    <section class="view-section" id="view-dashboard">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;flex-wrap:wrap;gap:1rem;">
+        <div>
+          <div class="section-tag" data-i18n="nav_dashboard">Dashboard</div>
+          <h2 style="font-size:2rem;color:#fff;">Mumbai Environmental Intelligence Overview</h2>
+        </div>
+        <div style="display:flex;gap:0.75rem;">
+          <button class="pill-btn active" data-nav="map">Open Map View</button>
+          <button class="pill-btn" onclick="window.print()">Export Report</button>
+        </div>
+      </div>
+
+      <!-- Stats Grid A through H -->
+      <div class="dashboard-stats-grid">
+        <!-- A. Total Plastic Detected -->
+        <div class="glass-card stat-metric-card">
+          <div class="stat-header-row">
+            <span class="stat-title" data-i18n="stat_total_detected">Total Plastic Detected</span>
+            <span class="stat-icon">🚯</span>
+          </div>
+          <div class="stat-value">14,820 <span style="font-size:1rem;color:var(--text-muted);">kg</span></div>
+          <div class="stat-footnote up" data-i18n="ui_stat_weekly_change">▲ 8.4% this week (Monsoon influx)</div>
+        </div>
+
+        <!-- B. High Risk Locations -->
+        <div class="glass-card stat-metric-card">
+          <div class="stat-header-row">
+            <span class="stat-title" data-i18n="stat_high_risk">High Risk Locations</span>
+            <span class="stat-icon">🚨</span>
+          </div>
+          <div class="stat-value" style="color:#ef4444;">8 <span style="font-size:0.9rem;color:var(--text-muted);" data-i18n="ui_sites">Sites</span></div>
+          <div class="stat-footnote up" data-i18n="ui_stat_high_sites">Mithi River & Dharavi Nullah critical</div>
+        </div>
+
+        <!-- C. Medium Risk Locations -->
+        <div class="glass-card stat-metric-card">
+          <div class="stat-header-row">
+            <span class="stat-title" data-i18n="stat_medium_risk">Medium Risk Locations</span>
+            <span class="stat-icon">⚠️</span>
+          </div>
+          <div class="stat-value" style="color:#f59e0b;">14 <span style="font-size:0.9rem;color:var(--text-muted);" data-i18n="ui_sites">Sites</span></div>
+          <div class="stat-footnote neutral" data-i18n="ui_stat_scheduled">Under scheduled monitoring</div>
+        </div>
+
+        <!-- D. Low Risk Locations -->
+        <div class="glass-card stat-metric-card">
+          <div class="stat-header-row">
+            <span class="stat-title" data-i18n="stat_low_risk">Low Risk Locations</span>
+            <span class="stat-icon">🟢</span>
+          </div>
+          <div class="stat-value" style="color:#10b981;">22 <span style="font-size:0.9rem;color:var(--text-muted);" data-i18n="ui_sites">Sites</span></div>
+          <div class="stat-footnote down" data-i18n="ui_stat_low_sites">Marine Drive & Nariman Pt restored</div>
+        </div>
+
+        <!-- E. Plastic Waste Collected -->
+        <div class="glass-card stat-metric-card">
+          <div class="stat-header-row">
+            <span class="stat-title" data-i18n="stat_collected">Plastic Waste Collected</span>
+            <span class="stat-icon">🚛</span>
+          </div>
+          <div class="stat-value">9,450 <span style="font-size:1rem;color:var(--text-muted);">kg</span></div>
+          <div class="stat-footnote down" data-i18n="ui_stat_prevented">▼ 63.7% baseline leakage prevented</div>
+        </div>
+
+        <!-- F. Recyclable Waste -->
+        <div class="glass-card stat-metric-card">
+          <div class="stat-header-row">
+            <span class="stat-title" data-i18n="stat_recyclable">Recyclable Potential</span>
+            <span class="stat-icon">♻️</span>
+          </div>
+          <div class="stat-value" style="color:var(--teal-glow);">68.4%</div>
+          <div class="stat-footnote down" data-i18n="ui_stat_mrf">Forwarded to Bandra & Dharavi MRF</div>
+        </div>
+
+        <!-- G. Estimated Leakage Risk -->
+        <div class="glass-card stat-metric-card">
+          <div class="stat-header-row">
+            <span class="stat-title" data-i18n="stat_leakage_risk">Estimated Leakage Risk</span>
+            <span class="stat-icon">🌊</span>
+          </div>
+          <div class="stat-value" style="color:#f97316;">73% <span style="font-size:0.9rem;color:var(--text-muted);" data-i18n="risk_high">High</span></div>
+          <div class="stat-footnote up" data-i18n="ui_stat_tide">Due to approaching 4.3m Spring Tide</div>
+        </div>
+
+        <!-- H. Coastal Hotspots -->
+        <div class="glass-card stat-metric-card">
+          <div class="stat-header-row">
+            <span class="stat-title" data-i18n="stat_hotspots">Active Coastal Hotspots</span>
+            <span class="stat-icon">📍</span>
+          </div>
+          <div class="stat-value">12 <span style="font-size:0.9rem;color:var(--text-muted);" data-i18n="ui_wards">Wards</span></div>
+          <div class="stat-footnote neutral" data-i18n="ui_stat_wards">Covers Mahim, Juhu, Versova, Gorai</div>
+        </div>
+      </div>
+
+      <!-- Dashboard Interactive Charts -->
+      <div class="charts-grid-2col">
+        <div class="glass-card">
+          <div class="chart-card-header">
+            <h4 class="chart-card-title">Plastic Pollution Trends & Municipal Interception</h4>
+            <div class="chart-timeframe-pills">
+              <button class="pill-btn trend-timeframe-btn" data-timeframe="daily">Daily</button>
+              <button class="pill-btn trend-timeframe-btn" data-timeframe="weekly">Weekly</button>
+              <button class="pill-btn trend-timeframe-btn active" data-timeframe="monthly">Monthly</button>
+            </div>
+          </div>
+          <div class="chart-canvas-container">
+            <canvas id="analyticsTrendChart"></canvas>
+          </div>
+        </div>
+
+        <div class="glass-card">
+          <div class="chart-card-header">
+            <h4 class="chart-card-title">Risk Level Distribution</h4>
+            <span style="font-size:0.75rem;color:var(--text-muted);">Mumbai Ward Network</span>
+          </div>
+          <div class="chart-canvas-container">
+            <canvas id="analyticsRiskChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="charts-grid-2col">
+        <div class="glass-card">
+          <div class="chart-card-header">
+            <h4 class="chart-card-title">Plastic Waste Categories (14-Polymer Engine)</h4>
+          </div>
+          <div class="chart-canvas-container">
+            <canvas id="analyticsWasteTypeChart"></canvas>
+          </div>
+        </div>
+
+        <div class="glass-card">
+          <div class="chart-card-header">
+            <h4 class="chart-card-title">Stormwater Drainage Load vs Coastal Wave Wash</h4>
+          </div>
+          <div class="chart-canvas-container">
+            <canvas id="analyticsDrainageChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================================
+         3. AI WASTE SCANNER VIEW (view-scanner)
+         ========================================================================= -->
+    <section class="view-section" id="view-scanner">
+      <div style="margin-bottom:1.5rem;">
+        <div class="section-tag" data-i18n="nav_scanner">AI Waste Scanner</div>
+        <h2 style="font-size:2rem;color:#fff;" data-i18n="scanner_heading">Multi-Source Plastic Detection & Classification</h2>
+        <p style="color:var(--text-muted);font-size:0.9rem;" data-i18n="scanner_description">Upload smartphone photos, drainage inspection imagery, or satellite tiles to classify 14 waste categories and compute pollution risk.</p>
+      </div>
+
+      <div class="scanner-container">
+        <!-- Left: Upload & Canvas Preview -->
+        <div class="glass-panel" style="padding:1.5rem;">
+          <!-- Dropzone -->
+          <div class="upload-dropzone" id="uploadDropzone">
+            <input type="file" id="fileInput" accept="image/jpeg,image/png,image/webp" style="display:none;">
+            <div class="dropzone-icon">📷</div>
+            <h4 style="font-size:1.15rem;color:#fff;margin-bottom:0.4rem;" data-i18n="btn_upload_image">Upload Device Photo</h4>
+            <p style="font-size:0.82rem;color:var(--text-muted);" data-i18n="scanner_drop_hint">Drag and drop JPG, PNG, or WEBP (Max 15MB)</p>
+          </div>
+
+          <!-- Quick Sources Selector -->
+          <div class="upload-sources-row">
+            <button class="source-chip-btn" id="btnSampleBeach">
+              <span>🏖️ <span data-i18n="ui_sample_beach">Sample Beach Litter</span></span>
+            </button>
+            <button class="source-chip-btn" id="btnSampleDrain">
+              <span>🌊 <span data-i18n="ui_sample_drain">Sample Drainage Clog</span></span>
+            </button>
+            <button class="source-chip-btn" id="btnSampleSatellite">
+              <span>🛰️ <span data-i18n="ui_sample_satellite">Sample Satellite View</span></span>
+            </button>
+            <button class="source-chip-btn" id="btnOnlineUrl">
+              <span>🌐 <span data-i18n="ui_online_url">Online URL</span></span>
+            </button>
+            <button class="source-chip-btn" id="btnCameraCapture">
+              <span>📹 <span data-i18n="ui_scanner_camera">Camera Snapshot</span></span>
+            </button>
+          </div>
+          <div class="scanner-url-import">
+            <label for="scannerImageUrl" data-i18n="scanner_url_label">Image URL</label>
+            <div class="scanner-url-controls">
+              <input id="scannerImageUrl" type="url" inputmode="url" autocomplete="url"
+                placeholder="Paste an image URL (http or https)" data-i18n-placeholder="scanner_url_placeholder"
+                aria-describedby="scannerUrlStatus">
+              <button class="pill-btn" type="button" id="btnPasteImageUrl" data-i18n="scanner_url_paste">Paste</button>
+              <button class="pill-btn" type="button" id="btnClearImageUrl" data-i18n="scanner_url_clear">Clear</button>
+              <button class="pill-btn" type="button" id="btnImportImageUrl" data-i18n="scanner_url_import">Load Image</button>
+            </div>
+            <p id="scannerUrlStatus" class="scanner-url-status" role="status" aria-live="polite"></p>
+          </div>
+
+          <!-- Canvas Preview with Scanning Laser Line -->
+          <div style="margin-top:1.25rem;">
+            <div class="scanner-preview-wrapper">
+              <canvas id="scannerCanvas" class="scanner-canvas"></canvas>
+              <div class="scanning-scanline" id="scannerScanline"></div>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:0.6rem;font-size:0.75rem;color:var(--text-muted);">
+              <span data-i18n="scanner_canvas_hint">Hover over boxes or click below to examine polymer composition</span>
+              <span>Model: YOLO-MarineV8 + DeepLabV3</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Risk Engine & Results Breakdown -->
+        <div class="glass-panel results-card">
+          <div class="results-header-actions">
+            <h3 style="font-size:1.35rem;color:#fff;" data-i18n="scanner_results_heading">Detection Intelligence</h3>
+            <button class="pill-btn" id="btnExportJson" data-i18n="btn_download_json">Export Structured JSON</button>
+          </div>
+
+          <!-- Risk Score Meter -->
+          <div class="risk-meter-container">
+            <div class="gauge-circle" id="riskGaugeCircle" style="border-radius:50%;padding:6px;background:conic-gradient(var(--risk-critical) 320deg, rgba(255,255,255,0.08) 0deg);">
+              <div style="width:100%;height:100%;border-radius:50%;background:#061426;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+                <div class="gauge-score-value" id="riskScoreValue">94</div>
+                <div style="font-size:0.65rem;color:var(--text-muted);">/ 100</div>
+              </div>
+            </div>
+            <div class="gauge-details">
+              <div style="display:flex;align-items:center;gap:0.6rem;">
+                <h4 style="color:#fff;" data-i18n="scanner_risk_label">Pollution Risk:</h4>
+                <span class="risk-tag critical" id="riskScoreLevel">CRITICAL</span>
+              </div>
+              <p style="margin-top:0.25rem;"><span data-i18n="scanner_marine_leakage_label">Marine Leakage Probability</span>: <strong style="color:#f87171;" id="scannerLeakageProb">96%</strong></p>
+            </div>
+          </div>
+
+          <!-- Results Table -->
+          <div class="detection-table-wrapper">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th data-i18n="header_waste_type">Waste Type</th>
+                  <th data-i18n="header_detected_qty">Qty</th>
+                  <th data-i18n="header_confidence">Conf</th>
+                  <th data-i18n="header_recyclability">Recyclability</th>
+                  <th data-i18n="header_best_action">Action</th>
+                </tr>
+              </thead>
+              <tbody id="detectionTableBody">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
+          </div>
+
+          <!-- AI Environmental Explainability Box -->
+          <div class="explain-box">
+            <h5 data-i18n="why_high_risk">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+              AI Environmental Explainability
+            </h5>
+            <ul id="riskExplainList">
+              <!-- Dynamically populated -->
+            </ul>
+            <div style="margin-top:0.75rem;padding-top:0.6rem;border-top:1px solid rgba(255,255,255,0.06);font-size:0.8rem;">
+              <strong style="color:#fff;" data-i18n="scanner_cleanup_label">Cleanup Recommendation:</strong>
+              <div id="riskRecommendedAction" style="color:var(--text-accent);margin-top:0.2rem;">
+                Immediate interception boom barrier installation & emergency municipal crew deployment within 12h.
+              </div>
+            </div>
+          </div>
+
+          <!-- Action Dispatch Buttons -->
+          <div style="margin-top:1.25rem;display:flex;gap:0.75rem;">
+            <button class="btn-primary" style="flex:1;" data-nav="municipal">
+              <span data-i18n="scanner_dispatch">Dispatch Cleanup Squad →</span>
+            </button>
+            <button class="btn-outline" style="flex:1;" data-nav="map">
+              <span data-i18n="scanner_map_pin">Pin on Mumbai Map</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================================
+         4. SATELLITE INTELLIGENCE VIEW (view-satellite)
+         ========================================================================= -->
+    <section class="view-section" id="view-satellite">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;flex-wrap:wrap;gap:1rem;">
+        <div>
+          <div class="section-tag" data-i18n="nav_satellite">Satellite Intelligence</div>
+          <h2 style="font-size:2rem;color:#fff;">Multispectral Coastal Remote Sensing & Change Detection</h2>
+          <p style="color:var(--text-muted);font-size:0.9rem;">Analyze satellite imagery over Mumbai coast (Mahim Bay, Thane Creek, Mithi Delta) to observe floating plastic accumulation plumes.</p>
+        </div>
+        <div style="display:flex;gap:0.75rem;">
+          <input type="file" id="satFileInput" accept="image/*" style="display:none;">
+          <button class="btn-outline" onclick="document.getElementById('satFileInput').click()">Upload Custom Satellite Tile</button>
+        </div>
+      </div>
+
+      <!-- Split Slider Container -->
+      <div class="satellite-split-container" id="satelliteSplitContainer">
+        <!-- Base image (After state / false-color) -->
+        <img id="satBaseImg" src="assets/images/satellite-mumbai-coast.jpg" alt="Satellite False Color Pollution" class="sat-img-base">
+        
+        <!-- Overlay image (Before state / baseline) -->
+        <div class="sat-img-overlay-wrap" id="satelliteOverlayWrap">
+          <img src="assets/images/satellite-mumbai-coast.jpg" alt="Baseline Satellite Imagery" style="filter: hue-rotate(180deg) saturate(1.4);">
+        </div>
+
+        <!-- Draggable Handle -->
+        <div class="sat-slider-handle" id="satelliteSliderHandle">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m9 18-6-6 6-6"/><path d="m15 6 6 6-6 6"/></svg>
+        </div>
+      </div>
+
+      <div style="display:flex;justify-content:space-between;margin-top:0.75rem;font-size:0.8rem;color:var(--text-muted);">
+        <span>◀ Baseline Satellite Image (15 Days Ago)</span>
+        <span>Drag slider to compare multispectral optical reflectance</span>
+        <span>Current Sentinel-2 Satellite Influx Plume ▶</span>
+      </div>
+
+      <!-- Satellite KPI Metrics -->
+      <div class="dashboard-stats-grid" style="margin-top:1.5rem;">
+        <div class="glass-card stat-metric-card">
+          <div class="stat-title">Change Detection</div>
+          <div class="stat-value" id="satMetricIncrease" style="color:#ef4444;">+14.8%</div>
+          <div class="stat-footnote up">Plastic debris plume expansion</div>
+        </div>
+
+        <div class="glass-card stat-metric-card">
+          <div class="stat-title">AI Remote Sensing Confidence</div>
+          <div class="stat-value" id="satMetricConf" style="color:var(--emerald-glow);">86.4%</div>
+          <div class="stat-footnote down">Distinguished from cloud & sediment</div>
+        </div>
+
+        <div class="glass-card stat-metric-card">
+          <div class="stat-title">Estimated Plume Area</div>
+          <div class="stat-value" id="satMetricArea" style="color:var(--teal-glow);">2.41 km²</div>
+          <div class="stat-footnote neutral">Mahim Bay & Mithi Outfall</div>
+        </div>
+
+        <div class="glass-card stat-metric-card">
+          <div class="stat-title">Ground Verification Status</div>
+          <div class="stat-value" style="font-size:1.4rem;color:#f59e0b;">Pending Patrol</div>
+          <div class="stat-footnote up">Coast Guard boat required</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================================
+         5. POLLUTION MAP & MAP ASSISTANT VIEW (view-map)
+         ========================================================================= -->
+    <section class="view-section" id="view-map">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;flex-wrap:wrap;gap:1rem;">
+        <div>
+          <div class="section-tag" data-i18n="nav_map">Pollution Map</div>
+          <h2 style="font-size:2rem;color:#fff;">Interactive Mumbai Coastal Pollution Cartography</h2>
+        </div>
+        <div style="display:flex;gap:0.75rem;">
+          <button class="btn-primary" id="btnGenCleanupRoute" style="font-size:0.85rem;padding:0.5rem 1.15rem;">
+            ⚡ Generate Smart Cleanup Route
+          </button>
+        </div>
+      </div>
+
+      <div class="map-layout-grid">
+        <!-- Left: Interactive Leaflet CartoDB Map -->
+        <div class="map-viewport-wrapper">
+          <div id="mumbaiLeafletMap"></div>
+
+          <!-- Floating Map Controls -->
+          <div class="map-controls-floating-bar">
+            <select id="mapRiskFilter" class="lang-select" style="padding-right:1rem;">
+              <option value="ALL">All Risk Levels</option>
+              <option value="CRITICAL">🔴 Critical Risk</option>
+              <option value="HIGH">🟠 High Risk</option>
+              <option value="MEDIUM">🟡 Medium Risk</option>
+              <option value="LOW">🟢 Low Risk</option>
+            </select>
+
+            <label style="display:flex;align-items:center;gap:0.35rem;font-size:0.78rem;color:#fff;cursor:pointer;padding:0 6px;">
+              <input type="checkbox" id="layerToggleHeatmap" checked> Heatmap
+            </label>
+            <label style="display:flex;align-items:center;gap:0.35rem;font-size:0.78rem;color:#fff;cursor:pointer;padding:0 6px;">
+              <input type="checkbox" id="layerToggleDrainage" checked> Drains (Nullahs)
+            </label>
+            <label style="display:flex;align-items:center;gap:0.35rem;font-size:0.78rem;color:#fff;cursor:pointer;padding:0 6px;">
+              <input type="checkbox" id="layerToggleRecycling" checked> Recycling Hubs
+            </label>
+          </div>
+        </div>
+
+        <!-- Right: PlastiSense Map Assistant & Hotspot List -->
+        <div class="map-sidebar-drawer">
+          <!-- AI Assistant inside Map -->
+          <div class="assistant-chat-panel">
+            <div class="chat-header">
+              <div class="chat-header-title">
+                <span style="font-size:1.1rem;">🤖</span>
+                <span data-i18n="map_assistant_title">PlastiSense Map Assistant</span>
+              </div>
+              <span class="pill-btn active" style="font-size:0.65rem;">Active</span>
+            </div>
+
+            <!-- Messages Stream -->
+            <div class="chat-messages-container" id="chatMessagesContainer">
+              <div class="chat-msg bot">
+                Hello! I am your <strong>PlastiSense Map Assistant</strong>.<br>
+                Ask me in <strong>English, தமிழ், తెలుగు, ಕನ್ನಡ, മലയാളം, or हिन्दी</strong> about Mumbai's coastal hotspots, drainage paths, or recycling routes!
+              </div>
+            </div>
+
+            <!-- Quick Multilingual Prompt Chips -->
+            <div class="chat-prompt-chips">
+              <button class="chat-chip" data-query="Show me high-risk plastic areas in Mumbai.">
+                🔴 High Risk Areas
+              </button>
+              <button class="chat-chip" data-query="மும்பையில் அதிக ஆபத்து உள்ள பிளாஸ்டிக் பகுதிகளை காட்டு.">
+                தமிழ்: அதிக ஆபத்து
+              </button>
+              <button class="chat-chip" data-query="Show plastic hotspots near drains.">
+                🌊 Drains / Nullahs
+              </button>
+              <button class="chat-chip" data-query="Find the nearest recycling center.">
+                ♻️ Recycling Hubs
+              </button>
+              <button class="chat-chip" data-query="Give me the safest cleanup route.">
+                🚛 Cleanup Route
+              </button>
+              <button class="chat-chip" data-query="இந்த இடம் ஏன் High Risk?">
+                தமிழ்: ஏன் High Risk?
+              </button>
+            </div>
+
+            <!-- Input Bar -->
+            <div class="chat-input-bar">
+              <input type="text" class="chat-input" id="chatTextInput" placeholder="Ask Map Assistant..." data-i18n="map_assistant_placeholder">
+              <button class="btn-primary" id="btnChatSend" style="padding:0.5rem 1rem;font-size:0.8rem;" data-i18n="btn_send">Send</button>
+            </div>
+          </div>
+
+          <!-- Search Bar for Mumbai Locations -->
+          <div>
+            <input type="text" class="form-control" id="mapSearchInput" placeholder="Filter Mumbai beach, creek, or nullah..." data-i18n="map_search_placeholder">
+          </div>
+
+          <!-- Hotspot Sidebar List -->
+          <div id="mapHotspotsList">
+            <!-- Dynamically populated from data.js -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================================
+         6. DRAIN-TO-SEA LEAKAGE SIMULATOR VIEW (view-simulator)
+         ========================================================================= -->
+    <section class="view-section" id="view-simulator">
+      <div style="margin-bottom:1.5rem;">
+        <div class="section-tag" data-i18n="nav_simulator">Unique Feature 2</div>
+        <h2 style="font-size:2rem;color:#fff;" data-i18n="simulator_title">Drain-to-Sea Leakage Simulator</h2>
+        <p style="color:var(--text-muted);font-size:0.9rem;" data-i18n="simulator_sub">
+          Simulate how rainfall, drainage blockage, and Arabian Sea high tide propel plastic waste into Mumbai's coastline.
+        </p>
+      </div>
+
+      <div class="simulator-layout">
+        <!-- Physics Simulation Canvas -->
+        <div class="simulator-canvas-card">
+          <canvas id="drainSimulatorCanvas"></canvas>
+        </div>
+
+        <!-- Simulator Controls -->
+        <div class="glass-panel sim-controls-panel">
+          <h4 style="font-size:1.15rem;color:#fff;">Simulation Parameters</h4>
+
+          <!-- Rainfall Slider -->
+          <div class="slider-group">
+            <div class="slider-label-row">
+              <span data-i18n="rainfall_slider">Rainfall Intensity</span>
+              <span class="slider-val-badge" id="valRainfall">25 mm/hr</span>
+            </div>
+            <input type="range" class="custom-range" id="simRainfallSlider" min="0" max="60" value="25">
+          </div>
+
+          <!-- Blockage Slider -->
+          <div class="slider-group">
+            <div class="slider-label-row">
+              <span data-i18n="blockage_slider">Drainage Blockage</span>
+              <span class="slider-val-badge" id="valBlockage">40%</span>
+            </div>
+            <input type="range" class="custom-range" id="simBlockageSlider" min="0" max="95" value="40">
+          </div>
+
+          <!-- Tide Level Slider -->
+          <div class="slider-group">
+            <div class="slider-label-row">
+              <span data-i18n="tide_slider">Arabian Sea Tide Height</span>
+              <span class="slider-val-badge" id="valTide">3.5 m</span>
+            </div>
+            <input type="range" class="custom-range" id="simTideSlider" min="1.0" max="5.2" step="0.1" value="3.5">
+          </div>
+
+          <!-- Boom Barrier Toggle -->
+          <div style="padding:0.75rem;border-radius:var(--radius-sm);background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3);display:flex;align-items:center;justify-content:space-between;">
+            <div>
+              <strong style="font-size:0.85rem;color:#fff;" data-i18n="interception_barrier">Trash Boom Barrier</strong>
+              <div style="font-size:0.72rem;color:var(--emerald-glow);">Physical Net Interception</div>
+            </div>
+            <input type="checkbox" id="simBarrierToggle" style="width:18px;height:18px;cursor:pointer;">
+          </div>
+
+          <!-- Calculated Real-Time Metrics -->
+          <div style="padding:1rem;border-radius:var(--radius-sm);background:rgba(8,22,38,0.9);border:1px solid var(--bg-card-border);">
+            <div style="display:flex;justify-content:space-between;margin-bottom:0.4rem;font-size:0.82rem;">
+              <span style="color:var(--text-muted);">Marine Leakage Rate:</span>
+              <strong id="simLeakageRate" style="color:#f87171;">252 kg/hr</strong>
+            </div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:0.4rem;font-size:0.82rem;">
+              <span style="color:var(--text-muted);">Pollution Risk:</span>
+              <span class="risk-tag high" id="simRiskOutput">HIGH</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:0.82rem;">
+              <span style="color:var(--text-muted);">Barrier Interception:</span>
+              <strong id="simBarrierEfficiency" style="color:var(--risk-critical);">0% (Disengaged)</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================================
+         7. ANALYTICS VIEW (view-analytics)
+         ========================================================================= -->
+    <section class="view-section" id="view-analytics">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;flex-wrap:wrap;gap:1rem;">
+        <div>
+          <div class="section-tag" data-i18n="nav_analytics">Analytics</div>
+          <h2 style="font-size:2rem;color:#fff;">Coastal Plastic Hotspot Rankings & Impact Trends</h2>
+        </div>
+        <div style="display:flex;gap:0.75rem;">
+          <button class="btn-outline" id="btnExportCsv" data-i18n="btn_export_csv">Export CSV</button>
+          <button class="btn-primary" id="btnExportPdf" data-i18n="btn_export_pdf">Export PDF Report</button>
+        </div>
+      </div>
+
+      <!-- Hotspots Ranking Table -->
+      <div class="glass-panel" style="padding:1.5rem;margin-bottom:2rem;">
+        <h4 style="font-size:1.25rem;color:#fff;margin-bottom:1rem;">Algorithmic Hotspot Priority Ranking</h4>
+        <div class="detection-table-wrapper" style="max-height:420px;">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Priority</th>
+                <th>Hotspot Location</th>
+                <th>Ward</th>
+                <th>Risk Score</th>
+                <th>Est. Waste (kg)</th>
+                <th>Leakage Risk</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="hotspotRankingTableBody">
+              <!-- Dynamically populated from data.js -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================================
+         8. RECYCLE SMART VIEW (view-recycle)
+         ========================================================================= -->
+    <section class="view-section" id="view-recycle">
+      <div style="margin-bottom:1.5rem;">
+        <div class="section-tag" data-i18n="nav_recycle">Recycle Smart</div>
+        <h2 style="font-size:2rem;color:#fff;">Polymer-Specific Recycling & Material Recovery Engine</h2>
+        <p style="color:var(--text-muted);font-size:0.9rem;">Targeted segregation, processing protocols, and nearby Mumbai recovery facilities.</p>
+      </div>
+
+      <!-- Cards Grid of Polymers -->
+      <div class="charts-grid-3col">
+        <div class="glass-card" style="padding:1.5rem;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.6rem;">
+            <span class="risk-tag low">RECYCLE</span>
+            <span style="font-size:0.75rem;color:var(--text-muted);">High Recyclability</span>
+          </div>
+          <h4 style="font-size:1.15rem;color:#fff;margin-bottom:0.4rem;">PET Water & Beverage Bottles</h4>
+          <p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:0.85rem;">
+            Wash, segregate blue caps, and forward to mechanical flaking for bottle-to-bottle pelletizing.
+          </p>
+          <div style="font-size:0.75rem;color:var(--teal-glow);"><strong>Drop-off:</strong> Bandra East MRF</div>
+        </div>
+
+        <div class="glass-card" style="padding:1.5rem;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.6rem;">
+            <span class="risk-tag medium">COLLECT</span>
+            <span style="font-size:0.75rem;color:var(--text-muted);">Difficult Recyclability</span>
+          </div>
+          <h4 style="font-size:1.15rem;color:#fff;margin-bottom:0.4rem;">Low-Density Polyethylene Bags</h4>
+          <p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:0.85rem;">
+            Thermal agglomeration into plastic-bitumen additive for coastal road asphalt paving.
+          </p>
+          <div style="font-size:0.75rem;color:var(--teal-glow);"><strong>Drop-off:</strong> Dharavi Granulation Cluster</div>
+        </div>
+
+        <div class="glass-card" style="padding:1.5rem;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.6rem;">
+            <span class="risk-tag critical">SPECIALIZED RECOVERY</span>
+            <span style="font-size:0.75rem;color:var(--text-muted);">Critical Hazard</span>
+          </div>
+          <h4 style="font-size:1.15rem;color:#fff;margin-bottom:0.4rem;">Ghost Fishing Nets (Nylon 6)</h4>
+          <p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:0.85rem;">
+            Chemical depolymerization into high-grade textile yarn (ECONYL). Prevents marine entanglement.
+          </p>
+          <div style="font-size:0.75rem;color:var(--teal-glow);"><strong>Drop-off:</strong> Sassoon Docks Recovery Hub</div>
+        </div>
+
+        <div class="glass-card" style="padding:1.5rem;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.6rem;">
+            <span class="risk-tag critical">SPECIAL HANDLING</span>
+            <span style="font-size:0.75rem;color:var(--text-muted);">Strictly Avoid Burning</span>
+          </div>
+          <h4 style="font-size:1.15rem;color:#fff;margin-bottom:0.4rem;">Thermocol / Expanded Polystyrene</h4>
+          <p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:0.85rem;">
+            Mechanical hydraulic densification. Releases toxic styrene monomer if incinerated!
+          </p>
+          <div style="font-size:0.75rem;color:var(--teal-glow);"><strong>Drop-off:</strong> Deonar Eco-Processing Center</div>
+        </div>
+
+        <div class="glass-card" style="padding:1.5rem;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.6rem;">
+            <span class="risk-tag medium">SPECIALIZED</span>
+            <span style="font-size:0.75rem;color:var(--text-muted);">Non-Recyclable Films</span>
+          </div>
+          <h4 style="font-size:1.15rem;color:#fff;margin-bottom:0.4rem;">Multilayer Food Wrappers</h4>
+          <p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:0.85rem;">
+            Co-processing with cement kilns in Gujarat as Refuse-Derived Fuel (RDF) alternative.
+          </p>
+          <div style="font-size:0.75rem;color:var(--teal-glow);"><strong>Drop-off:</strong> Malad West MRF</div>
+        </div>
+
+        <div class="glass-card" style="padding:1.5rem;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.6rem;">
+            <span class="risk-tag low">RECYCLE</span>
+            <span style="font-size:0.75rem;color:var(--text-muted);">High Value</span>
+          </div>
+          <h4 style="font-size:1.15rem;color:#fff;margin-bottom:0.4rem;">Rigid HDPE Containers</h4>
+          <p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:0.85rem;">
+            Shredding, washing, and extrusion into durable plastic pallets and municipal utility bins.
+          </p>
+          <div style="font-size:0.75rem;color:var(--teal-glow);"><strong>Drop-off:</strong> Dharavi 13th Compound</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================================
+         9. MUNICIPAL ACTION CENTER VIEW (view-municipal)
+         ========================================================================= -->
+    <section class="view-section" id="view-municipal">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;flex-wrap:wrap;gap:1rem;">
+        <div>
+          <div class="section-tag" data-i18n="nav_municipal">Cleanup Command</div>
+          <h2 style="font-size:2rem;color:#fff;" data-i18n="municipal_title">Municipal Action & Cleanup Command</h2>
+          <p style="color:var(--text-muted);font-size:0.9rem;">Dispatch rapid response units, monitor trash skimmers, and sign off restoration completions.</p>
+        </div>
+        <div>
+          <button class="btn-primary" id="btnOpenNewTaskModal">
+            + Dispatch Interception Squad
+          </button>
+        </div>
+      </div>
+
+      <!-- Impact Calculator Module -->
+      <div class="glass-panel" style="padding:1.5rem;margin-bottom:2rem;">
+        <h4 style="font-size:1.2rem;color:#fff;margin-bottom:0.5rem;" data-i18n="btn_calculate_impact">Unique Innovation • Real-Time Environmental Impact Calculator</h4>
+        <p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:1rem;">Estimate marine conservation gains based on volume of plastic waste removed.</p>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:1.25rem;">
+          <div>
+            <label class="form-label">Plastic Removed (kg):</label>
+            <input type="number" class="form-control" id="impactInputRemoved" value="9450">
+          </div>
+          <div>
+            <label class="form-label">Coastal / Mangrove Area Cleared (m²):</label>
+            <input type="number" class="form-control" id="impactInputArea" value="4800">
+          </div>
+        </div>
+
+        <div class="dashboard-stats-grid" style="margin-bottom:0;">
+          <div class="glass-card stat-metric-card">
+            <div class="stat-title">Marine Leakage Prevented</div>
+            <div class="stat-value" id="impactResultLeakage" style="color:var(--emerald-glow);">8,316 kg</div>
+          </div>
+          <div class="stat-title glass-card stat-metric-card">
+            <div class="stat-title">CO2 Emissions Avoided</div>
+            <div class="stat-value" id="impactResultCo2" style="color:var(--teal-glow);">14,931 kg</div>
+          </div>
+          <div class="glass-card stat-metric-card">
+            <div class="stat-title">Tidal Shoreline Restored</div>
+            <div class="stat-value" id="impactResultArea" style="color:#38bdf8;">4,800 m²</div>
+          </div>
+          <div class="glass-card stat-metric-card">
+            <div class="stat-title">Marine Life Protected</div>
+            <div class="stat-value" id="impactResultFauna" style="color:#f59e0b;">~21,735 Organisms</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Cleanup Tasks List -->
+      <h4 style="font-size:1.25rem;color:#fff;margin-bottom:1rem;">Active Municipal Interception Tasks</h4>
+      <div id="municipalTasksList">
+        <!-- Dynamically populated from data.js -->
+      </div>
+    </section>
+
+    <!-- =========================================================================
+         10. CITIZEN COMMUNITY REPORTS VIEW (view-community)
+         ========================================================================= -->
+    <section class="view-section" id="view-community">
+      <div style="margin-bottom:1.5rem;">
+        <div class="section-tag" data-i18n="nav_community">Citizen Science</div>
+        <h2 style="font-size:2rem;color:#fff;">Community Hotspot Verification Portal</h2>
+        <p style="color:var(--text-muted);font-size:0.9rem;">Citizens report plastic accumulation; authorized officers and volunteers verify and upvote for rapid priority response.</p>
+      </div>
+
+      <div class="scanner-container">
+        <!-- Report Form -->
+        <div class="glass-panel" style="padding:1.5rem;">
+          <h4 style="font-size:1.15rem;color:#fff;margin-bottom:1rem;">Report New Coastal Hotspot</h4>
+          <form id="citizenReportForm">
+            <div class="form-group">
+              <label class="form-label">Location / Landmark Name:</label>
+              <input type="text" class="form-control" id="citizenLocName" placeholder="e.g. Mahim Beach near Koliwada outfall" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Primary Debris Type:</label>
+              <select class="form-control" id="citizenWasteType">
+                <option>Plastic Bottles & Caps</option>
+                <option>Polyethylene Bags</option>
+                <option>Food Packaging / Wrappers</option>
+                <option>Ghost Fishing Nets</option>
+                <option>Thermocol Boxes</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Estimated Volume:</label>
+              <select class="form-control" id="citizenVolume">
+                <option>Small (10 - 50 kg)</option>
+                <option>Medium (50 - 200 kg)</option>
+                <option>Large (200 - 500+ kg)</option>
+              </select>
+            </div>
+            <button type="submit" class="btn-primary" style="width:100%;margin-top:0.5rem;">
+              Submit Citizen Hotspot Report
+            </button>
+          </form>
+        </div>
+
+        <!-- Community Feed -->
+        <div class="glass-panel" style="padding:1.5rem;">
+          <h4 style="font-size:1.15rem;color:#fff;margin-bottom:1rem;">Verified Citizen Feed</h4>
+          <div id="communityReportsList">
+            <!-- Dynamically populated from data.js -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================================
+         11. SETTINGS & SECURITY VIEW (view-settings)
+         ========================================================================= -->
+    <section class="view-section" id="view-settings">
+      <div style="margin-bottom:1.5rem;">
+        <div class="section-tag" data-i18n="nav_settings">Security & Governance</div>
+        <h2 style="font-size:2rem;color:#fff;">Platform Security & Security Audit Log</h2>
+        <p style="color:var(--text-muted);font-size:0.9rem;">Role-based access control, secure session management, and immutable audit logs.</p>
+      </div>
+
+      <!-- Security Checklist -->
+      <div class="charts-grid-3col" style="margin-bottom:2rem;">
+        <div class="glass-card" style="padding:1.25rem;">
+          <div style="font-size:1.1rem;color:var(--emerald-glow);margin-bottom:0.4rem;">🔒 Role-Based Access</div>
+          <p style="font-size:0.8rem;color:var(--text-muted);">Admin, Municipal Officer, and Community User permissions enforced.</p>
+        </div>
+        <div class="glass-card" style="padding:1.25rem;">
+          <div style="font-size:1.1rem;color:var(--teal-glow);margin-bottom:0.4rem;">🛡️ API Proxy Architecture</div>
+          <p style="font-size:0.8rem;color:var(--text-muted);">All map & environmental keys stored securely server-side; rate limiting active.</p>
+        </div>
+        <div class="glass-card" style="padding:1.25rem;">
+          <div style="font-size:1.1rem;color:var(--emerald-glow);margin-bottom:0.4rem;">📑 Immutable Audit Log</div>
+          <p style="font-size:0.8rem;color:var(--text-muted);">Every cleanup dispatch, citizen report, and risk change recorded with IP hash.</p>
+        </div>
+      </div>
+
+      <!-- Audit Logs Table -->
+      <div class="glass-panel" style="padding:1.5rem;">
+        <h4 style="font-size:1.2rem;color:#fff;margin-bottom:1rem;">System Security Audit Log</h4>
+        <div class="detection-table-wrapper" style="max-height:340px;">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Timestamp</th>
+                <th>Authenticated User</th>
+                <th>Action Performed</th>
+                <th>Source IP / Node</th>
+                <th>Authorization</th>
+              </tr>
+            </thead>
+            <tbody id="auditLogTableBody">
+              <!-- Dynamically populated from data.js -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================================
+         12. ACTIVITY HISTORY VIEW (view-history)
+         ========================================================================= -->
+    <section class="view-section" id="view-history">
+      <div style="margin-bottom:1.5rem;">
+        <div class="section-tag" data-i18n="nav_history">Activity History</div>
+        <h2 style="font-size:2rem;color:#fff;" data-i18n="history_title">My Activity & Analysis History</h2>
+        <p style="color:var(--text-muted);font-size:0.9rem;" data-i18n="history_sub">A timestamped log of all scans, AI queries, hotspot visits, municipal actions, and simulation runs.</p>
+      </div>
+
+      <!-- Filter + Search Bar -->
+      <div style="display:flex;flex-wrap:wrap;align-items:center;gap:0.75rem;margin-bottom:1.5rem;">
+        <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+          <button class="pill-btn history-filter-pill active" data-filter="ALL">All</button>
+          <button class="pill-btn history-filter-pill" data-filter="ANALYSIS">🔬 Scans</button>
+          <button class="pill-btn history-filter-pill" data-filter="CHAT">🤖 AI Chats</button>
+          <button class="pill-btn history-filter-pill" data-filter="HOTSPOT">📍 Hotspots</button>
+          <button class="pill-btn history-filter-pill" data-filter="MUNICIPAL">🛡️ Municipal</button>
+          <button class="pill-btn history-filter-pill" data-filter="SIMULATION">🌊 Simulations</button>
+        </div>
+        <input type="text" class="form-control" id="historySearchInput" placeholder="🔍 Search history..." style="flex:1;min-width:180px;max-width:320px;">
+        <div style="display:flex;gap:0.5rem;margin-left:auto;">
+          <button class="pill-btn" id="btnExportHistoryJson">⬇ JSON</button>
+          <button class="pill-btn" id="btnExportHistoryCsv">⬇ CSV</button>
+          <button class="pill-btn" id="btnClearHistory" style="color:var(--risk-critical);">🗑 Clear All</button>
+        </div>
+      </div>
+
+      <!-- History List -->
+      <div id="historyListContainer">
+        <!-- Dynamically populated by history.js -->
+        <div style="text-align:center;padding:3rem 1rem;color:var(--text-muted);">
+          <div style="font-size:2.5rem;margin-bottom:0.5rem;">⏳</div>
+          <p>Loading activity history...</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="view-section" id="view-intelligence">
+      <div class="section-heading-block">
+        <div class="section-tag">Environmental Intelligence</div>
+        <h2 class="section-heading">Forecast, Interventions & Verification</h2>
+        <p class="section-subheading">Modelled estimates are clearly labelled. AI services require configured provider credentials.</p>
+      </div>
+
+      <section class="glass-panel intelligence-module" aria-labelledby="forecastHeading">
+        <div class="intelligence-module-heading">
+          <div>
+            <div class="section-tag">Forecast Availability</div>
+            <h3 id="forecastHeading">Plastic Leakage Forecast</h3>
+            <p class="section-subheading">Verified ward-level rainfall, tide and plastic-load feeds are not configured. Forecasts are withheld until those inputs are available.</p>
+          </div>
+          <div class="forecast-horizon-controls" role="group" aria-label="Forecast time horizon">
+            <button class="pill-btn forecast-horizon-btn active" type="button" data-hours="24">24 HOURS</button>
+            <button class="pill-btn forecast-horizon-btn" type="button" data-hours="48">48 HOURS</button>
+            <button class="pill-btn forecast-horizon-btn" type="button" data-hours="72">72 HOURS</button>
+          </div>
+        </div>
+        <div id="forecastResults" aria-live="polite"></div>
+      </section>
+
+      <section class="glass-panel intelligence-module" aria-labelledby="whatifHeading">
+        <div class="section-tag">Estimated scenarios</div>
+        <h3 id="whatifHeading">What-If Plastic Intervention Simulator</h3>
+        <p class="section-subheading">All outputs are estimated scenario calculations, not measured environmental results. Baseline leakage and intervention efficiency are user-provided assumptions; intervention labels do not have type-specific performance models. No monetary benefit is reported without a verified valuation method.</p>
+        <div class="intelligence-form-grid">
+          <label class="form-group">Location
+            <input class="form-control" id="whatifLocation" type="text" value="Mithi River Outfall" maxlength="120" required>
+          </label>
+          <label class="form-group">Intervention
+            <select class="form-control" id="whatifIntervention">
+              <option>Drain Barrier</option><option>Trash Boom</option><option>Drain Cleaning</option><option>Additional Collection Point</option><option>Cleanup Team</option><option>Increased Collection Frequency</option><option>Combined Intervention</option>
+            </select>
+          </label>
+          <label class="form-group">Estimated Cost (₹)
+            <input class="form-control" id="whatifCost" type="number" min="0" step="any" placeholder="Enter estimated cost" required>
+          </label>
+          <label class="form-group">Estimated Efficiency (%)
+            <input class="form-control" id="whatifEfficiency" type="number" min="0" max="100" step="any" placeholder="0–100" required>
+          </label>
+          <label class="form-group">Estimated Baseline Leakage for Scenario (kg, chosen period)
+            <input class="form-control" id="whatifBaseline" type="number" min="0" step="any" placeholder="Enter estimated kg" required>
+          </label>
+        </div>
+        <div class="intelligence-actions">
+          <button class="btn-primary" id="btnRunWhatIf" type="button">Run Scenario</button>
+          <button class="btn-outline" id="btnAddScenario" type="button">Add to Comparison</button>
+          <button class="btn-outline" id="btnClearScenarios" type="button">Clear Comparison</button>
+        </div>
+        <div id="whatifResults" aria-live="polite"></div>
+      </section>
+
+      <section class="glass-panel intelligence-module" aria-labelledby="brandAuditHeading">
+        <div class="section-tag" data-i18n="ui_visual_only">Visual identification only</div>
+        <h3 id="brandAuditHeading" data-i18n="ui_brand_audit">Brand Audit</h3>
+        <p class="section-subheading" data-i18n="copy_brand_audit_intro">Submit a pollution image for configured vision-model analysis. Any detections are visual estimates, not proof of legal responsibility, and require verification for regulatory use.</p>
+        <div class="intelligence-form-grid">
+          <label class="form-group"><span data-i18n="ui_pollution_image">Pollution image</span>
+            <input class="form-control" id="brandAuditFileInput" type="file" accept="image/jpeg,image/png,image/webp" required>
+          </label>
+          <label class="form-group"><span data-i18n="ui_location">Location</span>
+              <input class="form-control" id="brandAuditLocation" type="text" placeholder="Optional location" data-i18n-placeholder="ui_optional_location">
+          </label>
+          <label class="form-group"><span data-i18n="ui_ward">Ward</span>
+              <input class="form-control" id="brandAuditWard" type="text" placeholder="Optional ward" data-i18n-placeholder="ui_optional_ward">
+          </label>
+          <label class="form-group"><span data-i18n="ui_date">Date</span>
+            <input class="form-control" id="brandAuditDate" type="date">
+          </label>
+        </div>
+        <button class="btn-primary" id="btnRunBrandAudit" type="button">Analyze Visible Brands</button>
+        <div class="brand-audit-filters">
+          <label><span data-i18n="ui_filter_ward">Filter by Ward</span>
+              <input class="form-control" id="brandFilterWard" type="search" placeholder="All wards" data-i18n-placeholder="ui_all_wards">
+          </label>
+          <label><span data-i18n="ui_filter_location">Filter by Location</span>
+              <input class="form-control" id="brandFilterLocation" type="search" placeholder="All locations" data-i18n-placeholder="ui_all_locations">
+          </label>
+          <label><span data-i18n="ui_filter_waste">Filter by Waste Type</span>
+              <input class="form-control" id="brandFilterType" type="search" placeholder="All waste types" data-i18n-placeholder="ui_all_waste_types">
+          </label>
+          <label><span data-i18n="ui_date">Date</span>
+            <input class="form-control" id="brandFilterDate" type="date">
+          </label>
+        </div>
+        <div id="brandAuditResults" aria-live="polite"></div>
+      </section>
+
+      <section class="glass-panel intelligence-module" aria-labelledby="verifyHeading">
+        <div class="section-tag" data-i18n="ui_ai_human_separate">AI assistance; human review remains separate</div>
+        <h3 id="verifyHeading">Auto Verification</h3>
+        <p class="section-subheading">AI-assisted checks are not legal or official verification. Exact file matches are flagged as duplicates; perceptual-hash matches within 6 of 64 bits require human review and do not prove duplication. Final status remains pending human review.</p>
+        <div class="intelligence-form-grid">
+          <label class="form-group"><span data-i18n="ui_report_image">Report image</span>
+            <input class="form-control" id="verifyFileInput" type="file" accept="image/jpeg,image/png,image/webp">
+          </label>
+          <label class="form-group"><span data-i18n="ui_reported_location">Reported location</span>
+              <input class="form-control" id="verifyLocationInput" type="text" placeholder="Optional location" data-i18n-placeholder="ui_optional_location">
+          </label>
+        </div>
+        <div id="verifyPreview" class="verify-preview"></div>
+        <button class="btn-primary" id="btnRunAutoVerify" type="button" data-i18n="ui_verify_report">Verify Report</button>
+        <div id="verifyResults" aria-live="polite"></div>
+      </section>
+
+      <section class="glass-panel intelligence-module" aria-labelledby="teamHeading">
+        <div class="section-tag">PlastiSense AI Team</div>
+        <h3 id="teamHeading" data-i18n="ui_team_heading">Environmental technology, across disciplines</h3>
+        <p class="section-subheading" data-i18n="copy_team_capabilities">Role-based team capabilities; no individual identities or credentials are implied.</p>
+        <div class="team-role-grid">
+          <div class="glass-card"><strong>AI & Computer Vision</strong><span>Image understanding and model quality</span></div>
+          <div class="glass-card"><strong>Environmental Intelligence</strong><span>Pollution indicators and intervention estimates</span></div>
+          <div class="glass-card"><strong>Geospatial Analytics</strong><span>Ward, hotspot and coastal context</span></div>
+          <div class="glass-card"><strong>Product & Engineering</strong><span>Accessible and reliable application workflows</span></div>
+          <div class="glass-card"><strong>Environmental Research</strong><span>Evidence-aware environmental interpretation</span></div>
+          <div class="glass-card"><strong>Community & Policy</strong><span>Human review and community reporting</span></div>
+        </div>
+      </section>
+    </section>
+
+  </main>
+
+  <!-- =========================================================================
+       GLOBAL AI ASSISTANT FLOATING BUTTON + MODAL
+       ========================================================================= -->
+  <button id="btnGlobalAssistantFloating" aria-label="Open AI Assistant" data-i18n-aria-label="assistant_title" data-i18n-title="assistant_title"
+    style="position:fixed;bottom:2rem;right:2rem;z-index:1800;
+      width:58px;height:58px;border-radius:50%;
+      background:linear-gradient(135deg,#00f2fe,#4facfe);
+      border:none;cursor:pointer;box-shadow:0 4px 24px rgba(0,242,254,0.4);
+      display:flex;align-items:center;justify-content:center;
+      font-size:1.6rem;transition:transform 0.2s,box-shadow 0.2s;"
+    onmouseover="this.style.transform='scale(1.12)';this.style.boxShadow='0 6px 32px rgba(0,242,254,0.6)'"
+    onmouseout="this.style.transform='scale(1)';this.style.boxShadow='0 4px 24px rgba(0,242,254,0.4)'"
+    title="AI Assistant">
+    🤖
+  </button>
+
+  <!-- Global AI Assistant Modal -->
+  <div class="modal-backdrop" id="globalAssistantModal">
+    <div class="modal-dialog" style="max-width:680px;">
+      <div class="modal-header">
+        <div style="display:flex;align-items:center;gap:0.75rem;">
+          <div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#00f2fe,#4facfe);display:flex;align-items:center;justify-content:center;font-size:1.2rem;">🤖</div>
+          <div>
+            <h3 style="color:#fff;font-size:1.15rem;margin:0;" data-i18n="assistant_title">PlastiSense AI Assistant</h3>
+            <div style="font-size:0.72rem;color:var(--teal-glow);" data-i18n="assistant_sub">Ask me anything about plastic pollution, features, or Mumbai coastal data</div>
+          </div>
+        </div>
+        <button class="pill-btn" id="btnCloseGlobalAssistant">✕</button>
+      </div>
+      <div class="modal-body" style="padding:0;">
+        <!-- Quick Prompt Chips -->
+        <div style="padding:1rem 1.25rem 0.5rem;display:flex;flex-wrap:wrap;gap:0.5rem;">
+          <button class="pill-btn global-assistant-chip" data-query="What are the highest risk plastic hotspots in Mumbai?">📍 Top Hotspots</button>
+          <button class="pill-btn global-assistant-chip" data-query="How does PlastiSense AI detect plastic from images?">🔬 How detection works</button>
+          <button class="pill-btn global-assistant-chip" data-query="What cleanup actions are recommended for Mithi River?">🛡️ Cleanup tips</button>
+          <button class="pill-btn global-assistant-chip" data-query="Explain drain-to-sea plastic leakage and how to stop it.">🌊 Leakage explained</button>
+          <button class="pill-btn global-assistant-chip" data-query="What plastic types are most dangerous to marine life?">🐟 Marine impact</button>
+        </div>
+        <!-- Chat Messages -->
+        <div id="globalAssistantMessages" style="height:340px;overflow-y:auto;padding:1.25rem;display:flex;flex-direction:column;gap:0.75rem;">
+          <div style="display:flex;gap:0.6rem;align-items:flex-start;">
+            <div style="width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#00f2fe,#4facfe);display:flex;align-items:center;justify-content:center;font-size:0.9rem;flex-shrink:0;">🤖</div>
+            <div style="background:rgba(0,242,254,0.08);border:1px solid rgba(0,242,254,0.15);border-radius:0 12px 12px 12px;padding:0.75rem 1rem;font-size:0.88rem;color:var(--text-main);max-width:85%;line-height:1.5;">
+              <span data-i18n="assistant_greeting">Hello! I'm the PlastiSense AI Assistant. I can help you understand Mumbai's plastic pollution crisis, navigate platform features, interpret scan results, and recommend cleanup strategies. What would you like to know?</span>
+            </div>
+          </div>
+        </div>
+        <!-- Input Row -->
+        <div class="assistant-composer" style="padding:1rem 1.25rem;border-top:1px solid rgba(0,242,254,0.12);display:flex;gap:0.6rem;align-items:center;">
+          <button id="btnGlobalVoiceInput" class="pill-btn" type="button" title="Voice Input" style="padding:0.5rem 0.75rem;font-size:1rem;">🎤</button>
+          <input type="text" id="globalAssistantInput" class="form-control" style="flex:1;" placeholder="Type your question or use voice..." data-i18n-placeholder="assistant_placeholder">
+          <button id="btnVoiceResponseToggle" class="pill-btn" type="button" aria-label="Voice response off">🔇 Voice OFF</button>
+          <button id="btnGlobalAssistantSend" class="btn-primary" type="button" style="padding:0.5rem 1.25rem;" data-i18n="ui_send_arrow">Send ↗</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       MODALS
+       ========================================================================= -->
+
+  <!-- Hotspot Detail & Plastic Fingerprint Modal -->
+  <div class="modal-backdrop" id="hotspotDetailModal">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <div>
+          <h3 id="modalHotspotTitle" style="color:#fff;font-size:1.25rem;">Hotspot Details</h3>
+          <div id="modalHotspotWard" style="font-size:0.75rem;color:var(--teal-glow);">Ward Info</div>
+        </div>
+        <button class="pill-btn" onclick="MapModule.closeHotspotDetail()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+          <div class="glass-card" style="padding:0.85rem;">
+            <div style="font-size:0.75rem;color:var(--text-muted);">Pollution Risk:</div>
+            <strong id="modalRiskScore" style="color:#ef4444;font-size:1.1rem;">94/100</strong>
+          </div>
+          <div class="glass-card" style="padding:0.85rem;">
+            <div style="font-size:0.75rem;color:var(--text-muted);">Estimated Waste:</div>
+            <strong id="modalWasteVolume" style="color:#fff;font-size:1.1rem;">4,200 kg</strong>
+          </div>
+        </div>
+
+        <h4 style="font-size:0.95rem;color:#fff;margin-bottom:0.5rem;">Unique Feature 8 • Plastic Fingerprint:</h4>
+        <div id="modalPlasticFingerprint"></div>
+
+        <h4 style="font-size:0.95rem;color:var(--teal-glow);margin-top:1.25rem;margin-bottom:0.4rem;">AI Environmental Explainability:</h4>
+        <ul id="modalExplainList" style="padding-left:1.2rem;font-size:0.82rem;color:var(--text-muted);line-height:1.5;"></ul>
+
+        <div style="margin-top:1rem;font-size:0.8rem;color:#cbd5e1;">
+          <strong>Assigned Response Squad:</strong> <span id="modalAssignedSquad" style="color:var(--emerald-glow);">Ward G/North</span>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-outline" onclick="MapModule.closeHotspotDetail()">Close</button>
+        <button class="btn-primary" onclick="MapModule.closeHotspotDetail(); App.navigate('municipal');">Dispatch Team →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Authentication Modal -->
+  <div class="modal-backdrop" id="authRoleModal">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 style="color:#fff;font-size:1.25rem;">Account</h3>
+        <button class="pill-btn" onclick="document.getElementById('authRoleModal').classList.remove('open')">✕</button>
+      </div>
+      <div class="modal-body">
+        <p id="authMessage" class="auth-message" role="status" hidden></p>
+        <section id="authLoginSection">
+          <h4>Sign in</h4>
+          <form id="authLoginForm">
+            <label class="form-group">Email ID<input class="form-control" id="loginEmailInput" type="email" autocomplete="email" required></label>
+            <label class="form-group">Password<input class="form-control" id="loginPasswordInput" type="password" autocomplete="current-password" required></label>
+            <button class="btn-primary" type="submit">SIGN IN</button>
+          </form>
+          <div class="auth-form-links">
+            <button type="button" class="btn-link" id="btnForgotPassword">Forgot Password?</button>
+            <button type="button" class="btn-link" id="btnShowSignupSection">Create Account</button>
+          </div>
+        </section>
+        <section id="authSignupSection" hidden>
+          <h4>Create Account</h4>
+          <form id="authSignupForm">
+            <label class="form-group">Your Name<input class="form-control" id="signupNameInput" type="text" autocomplete="name" required minlength="2" maxlength="100"></label>
+            <label class="form-group">Country<input class="form-control" id="signupCountryInput" type="text" autocomplete="country-name" required minlength="2" maxlength="100"></label>
+            <fieldset class="form-group">
+              <legend>Gender / Preferred Avatar Style</legend>
+              <label><input type="radio" name="signupGender" value="male" required> Male</label>
+              <label><input type="radio" name="signupGender" value="female"> Female</label>
+              <label><input type="radio" name="signupGender" value="prefer-not-to-say" checked> Prefer not to say</label>
+            </fieldset>
+            <label class="form-group">Occupation
+              <select class="form-control" id="signupOccupationInput" required>
+                <option value="">Select occupation</option><option>Working Professional</option><option>Student</option><option>Researcher</option><option>Other</option>
+              </select>
+            </label>
+            <div id="avatarOptionsGrid" class="avatar-options-grid" aria-label="Default avatar choices"></div>
+            <input type="hidden" id="signupAvatarId" value="f_avatar_1">
+            <label class="form-group">Professional Email<input class="form-control" id="signupEmailInput" type="email" autocomplete="email" required maxlength="254"></label>
+            <label class="form-group">Password<input class="form-control" id="signupPasswordInput" type="password" autocomplete="new-password" required minlength="12" maxlength="1024" aria-describedby="signupPasswordHint"></label>
+            <small id="signupPasswordHint">Use at least 12 characters and at least three of these: lowercase letters, uppercase letters, numbers, and symbols.</small>
+            <label class="form-group">Confirm Password<input class="form-control" id="signupConfirmPasswordInput" type="password" autocomplete="new-password" required minlength="12" maxlength="1024"></label>
+            <div class="password-strength-track"><div id="passStrengthBar"></div></div>
+            <button class="btn-primary" type="submit">CREATE ACCOUNT</button>
+          </form>
+          <div class="auth-form-links"><button type="button" class="btn-link" id="btnShowLoginSection">Already registered? Sign in</button></div>
+        </section>
+        <section id="authProfileSection" hidden>
+          <h4>Your Profile</h4>
+          <dl class="profile-details">
+            <dt>Name</dt><dd id="profileName"></dd>
+            <dt>Professional Email</dt><dd id="profileEmail"></dd>
+            <dt>Country</dt><dd id="profileCountry"></dd>
+            <dt>Gender</dt><dd id="profileGender"></dd>
+            <dt>Occupation</dt><dd id="profileOccupation"></dd>
+          </dl>
+          <form id="profileAvatarForm">
+            <fieldset class="form-group">
+              <legend>Choose a professional illustrated avatar</legend>
+              <div id="profileAvatarPreview" aria-label="Current profile avatar"></div>
+              <div id="profileAvatarOptionsGrid" class="avatar-options-grid" aria-label="Available illustrated avatars"></div>
+              <input type="hidden" id="profileAvatarId">
+            </fieldset>
+            <label class="form-group">Or upload a profile image (PNG, JPEG, or WebP; maximum 2 MB)
+              <input class="form-control" id="profileAvatarUpload" type="file" accept="image/png,image/jpeg,image/webp">
+            </label>
+            <button class="btn-primary" type="submit">SAVE AVATAR</button>
+          </form>
+        </section>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-outline" id="btnAuthLogout" type="button">Sign Out</button>
+        <button class="btn-outline" onclick="document.getElementById('authRoleModal').classList.remove('open')">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Assign Municipal Task Modal -->
+  <div class="modal-backdrop" id="assignTaskModal">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 style="color:#fff;font-size:1.25rem;">Dispatch Municipal Interception Squad</h3>
+        <button class="pill-btn" onclick="document.getElementById('assignTaskModal').classList.remove('open')">✕</button>
+      </div>
+      <form id="assignTaskForm">
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label">Location / Target Hotspot:</label>
+            <input type="text" class="form-control" id="taskLocationInput" value="Mahim Bay Drainage Confluence" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Assigned Squad / Contractor:</label>
+            <input type="text" class="form-control" id="taskTeamInput" value="Ward G/North Rapid Marine Cleaners" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Interception Priority:</label>
+            <select class="form-control" id="taskPriorityInput">
+              <option value="CRITICAL">🔴 CRITICAL (Deploy < 12h)</option>
+              <option value="HIGH">🟠 HIGH (Deploy < 24h)</option>
+              <option value="MEDIUM">🟡 MEDIUM (Deploy < 48h)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Special Equipment & Operational Notes:</label>
+            <textarea class="form-control" id="taskNotesInput" rows="3">Deploy floating trash skimmer boat and install containment boom across Mahim Creek mouth before 22:00 spring high tide.</textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-outline" onclick="document.getElementById('assignTaskModal').classList.remove('open')">Cancel</button>
+          <button type="submit" class="btn-primary">Confirm & Dispatch</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Notifications Drawer Modal -->
+  <div class="modal-backdrop" id="notificationsModal">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 style="color:#fff;font-size:1.25rem;">🚨 Environmental Intelligence Alerts</h3>
+        <button class="pill-btn" onclick="document.getElementById('notificationsModal').classList.remove('open')">✕</button>
+      </div>
+      <div class="modal-body" id="notificationsModalList">
+        <!-- Dynamically populated from data.js -->
+      </div>
+      <div class="modal-footer">
+        <button class="btn-outline" id="btnMarkAllNotifs">Mark All Read</button>
+        <button class="btn-primary" onclick="document.getElementById('notificationsModal').classList.remove('open')">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dependencies: Leaflet & Chart.js -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Application Modules -->
+  <script src="js/data.js"></script>
+  <script src="js/i18n.js"></script>
+  <script src="js/sound.js"></script>
+  <script src="js/history.js"></script>
+  <script src="js/scanner.js"></script>
+  <script src="js/map.js"></script>
+  <script src="js/assistant.js"></script>
+  <script src="js/satellite.js"></script>
+  <script src="js/simulator.js"></script>
+  <script src="js/forecast.js"></script>
+  <script src="js/whatif.js"></script>
+  <script src="js/brand-audit.js"></script>
+  <script src="js/auto-verify.js"></script>
+  <script src="js/analytics.js"></script>
+  <script src="js/municipal.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
